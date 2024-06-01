@@ -47,4 +47,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::get('notifications', [NotificationController::class, 'index']);
 Route::post('notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead']);
+Route::get('/bugs/developer/{id}', [BugController::class, 'getBugsForDeveloper']);
+
 

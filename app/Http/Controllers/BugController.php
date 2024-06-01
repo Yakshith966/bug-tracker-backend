@@ -47,6 +47,10 @@ class BugController extends Controller
 
         return response()->json($bug->load('developers'), 201);
     }
+    public function show($id)
+    {
+        return Bug::with( 'project', 'developers')->findOrFail($id);
+    }
 
     public function assignDevelopers(Request $request, $id)
     {
@@ -101,7 +105,7 @@ class BugController extends Controller
 
     $bug->save();
 
-    if ($previousStatus !== $bug->status && in_array($bug->status, ['working', 'done'])) {
+    if ($previousStatus !== $bug->status && in_array($bug->status, ['working', 'closed'])) {
         event(new BugStatusChanged($bug));
     }
 
@@ -114,5 +118,14 @@ class BugController extends Controller
         $bug->delete();
 
         return response()->json(['message' => 'Bug deleted successfully'], 200);
+    }
+    public function getBugsForDeveloper($developerId)
+    {
+        $data= Bug::with('developers', 'project')
+            ->whereHas('developers', function($query) use ($developerId) {
+                $query->where('developer_id', $developerId);
+            })
+            ->get();
+         return response()->json($data);   
     }
 }
